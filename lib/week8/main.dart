@@ -66,9 +66,7 @@ class _HomePageState extends State<HomePage> {
     print(response.body);
     final result = jsonDecode(response.body)['results'] as List<dynamic>;
     final data = result.map((json) => Recipe.fromJson(json)).toList();
-    setState(() {
-      recipes = data;
-    });
+    setState(() => recipes = data);
   }
 }
 
