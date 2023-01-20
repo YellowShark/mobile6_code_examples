@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mobile6_examples/week16/model/note.dart';
 import 'package:mobile6_examples/week16/repository/notes_repository.dart';
@@ -12,13 +14,14 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final _notesRepo = NotesRepository();
   late var _notes = <Note>[];
+  StreamSubscription? _subscription;
 
   @override
   void initState() {
     super.initState();
-    _notesRepo
-        .initDB()
-        .whenComplete(() => setState(() => _notes = _notesRepo.notes));
+    _notesRepo.initDB().whenComplete(() => _subscription = _notesRepo.boxStreamNotes.listen((list) {
+      setState(() => _notes = list);
+    }));
   }
 
   @override
@@ -72,6 +75,12 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
   Future _showBaseDialog({
     required String confirmText,
     required Future<void> Function(String first, String second) onPressed,
@@ -103,11 +112,8 @@ class _MainPageState extends State<MainPage> {
             actions: [
               TextButton(
                 onPressed: () async {
-                  await onPressed(nameController.text, descController.text);
-                  setState(() {
-                    _notes = _notesRepo.notes;
-                    Navigator.pop(context);
-                  });
+                  onPressed(nameController.text, descController.text);
+                  Navigator.pop(context);
                 },
                 child: Text(confirmText),
               )
