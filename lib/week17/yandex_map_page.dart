@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:mobile6_examples/week17/extended_point.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 const _colors = [
@@ -25,7 +26,7 @@ class YandexMapPage extends StatefulWidget {
 class _YandexMapPageState extends State<YandexMapPage> {
   final _location = Location();
   final List<MapObject> _mapObjects = [];
-  final _selectedPoints = <Point>[];
+  Point? _selectedPoint;
   late YandexMapController _controller;
   final MapObjectId _startMapObjectId = const MapObjectId('start_placemark');
   final MapObjectId _endMapObjectId = const MapObjectId('end_placemark');
@@ -49,30 +50,36 @@ class _YandexMapPageState extends State<YandexMapPage> {
                 // объекты, которые будут на карте
                 onMapCreated: _onMapCreated,
                 // метод, который вызывает при создании. через него мы получаем контроллер
-                onMapTap: _addMarker, // обработчик нажатия на карту
-                onCameraPositionChanged: (position, reason, finished) async {
-                  if (reason != CameraUpdateReason.gestures) return;
-                  if (!finished) return;
-
-                  final point = position.target;
-
-                  final results = await YandexSuggest.getSuggestions(
-                    text: 'Ресторан',
-                    boundingBox: BoundingBox(
-                      northEast: Point(latitude: point.latitude - 1, longitude: point.longitude - 1),
-                      southWest: Point(latitude: point.latitude + 1, longitude: point.longitude + 1),
-                    ),
-                    suggestOptions: SuggestOptions(
-                      suggestType: SuggestType.unspecified,
-                      suggestWords: true,
-                      userPosition: point,
-                    ),
-                  ).result;
-
-                  final item = results.items?.first;
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('${item?.displayText ?? ' '} ${item?.title ?? ' '} ${item?.subtitle ?? ' '} ${item?.props ?? ' '}')));
-                },
+                onMapTap: _addMarker,
+                // обработчик нажатия на карту
+                // onCameraPositionChanged: (position, reason, finished) async {
+                //   if (reason != CameraUpdateReason.gestures) return;
+                //   if (!finished) return;
+                //
+                //   final point = position.target;
+                //
+                //   final results = await YandexSuggest.getSuggestions(
+                //     text: 'Ресторан',
+                //     boundingBox: BoundingBox(
+                //       northEast: Point(
+                //           latitude: point.latitude - 1,
+                //           longitude: point.longitude - 1),
+                //       southWest: Point(
+                //           latitude: point.latitude + 1,
+                //           longitude: point.longitude + 1),
+                //     ),
+                //     suggestOptions: SuggestOptions(
+                //       suggestType: SuggestType.unspecified,
+                //       suggestWords: true,
+                //       userPosition: point,
+                //     ),
+                //   ).result;
+                //
+                //   final item = results.items?.first;
+                //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                //       content: Text(
+                //           '${item?.displayText ?? ' '} ${item?.title ?? ' '} ${item?.subtitle ?? ' '} ${item?.props ?? ' '}')));
+                // },
               ),
             ),
           ),
@@ -80,12 +87,51 @@ class _YandexMapPageState extends State<YandexMapPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            _mapObjects.clear();
-            _selectedPoints.clear();
-          });
+          final point = _selectedPoint;
+          if (point == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Ни одна точка не выбрана'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+          showGeneralDialog(
+              context: context,
+              pageBuilder: (_, __, ___) {
+                final nameController = TextEditingController();
+                return AlertDialog(
+                  title: const Text('New location'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: nameController,
+                        decoration: const InputDecoration(hintText: 'Name'),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        Navigator.pop(
+                          context,
+                          ExtendedPoint(
+                            name: nameController.text,
+                            latitude: point.latitude,
+                            longitude: point.longitude,
+                          ),
+                        );
+                      },
+                      child: const Text('Save'),
+                    )
+                  ],
+                );
+              });
         },
-        child: const Text("Сброс"),
+        child: const Icon(Icons.save),
       ),
     );
   }
@@ -140,77 +186,78 @@ class _YandexMapPageState extends State<YandexMapPage> {
 
   Future _addMarker(Point point) async {
     // Если нет ни одной отметки, то просто ставим отметку на карте
-    if (_selectedPoints.isEmpty) {
-      _mapObjects.add(
-        // PlacemarkMapObject означает отметку на карте в виде обычной точки
-        PlacemarkMapObject(
-          mapId: _startMapObjectId,
-          point: point,
-          icon: PlacemarkIcon.single(
-            PlacemarkIconStyle(
-              image: BitmapDescriptor.fromBytes(_placemarkIcon),
-            ),
+    //if (_selectedPoints.isEmpty) {
+    _mapObjects.add(
+      // PlacemarkMapObject означает отметку на карте в виде обычной точки
+      PlacemarkMapObject(
+        mapId: _startMapObjectId,
+        point: point,
+        icon: PlacemarkIcon.single(
+          PlacemarkIconStyle(
+            image: BitmapDescriptor.fromBytes(_placemarkIcon),
           ),
         ),
-      );
-    } else {
-      // Если хотя бы 2 отметки на карте, то стороим между ними маршрут
-
-      // Сначала отметим на карте конечную точку
-      _mapObjects.add(
-        PlacemarkMapObject(
-          mapId: _endMapObjectId,
-          point: point,
-          icon: PlacemarkIcon.single(
-            PlacemarkIconStyle(
-              image: BitmapDescriptor.fromBytes(_placemarkIcon),
-            ),
-          ),
-        ),
-      );
-
-      // Теперь рассчитаем путь
-      /// Объект `YandexDriving` предназначен для построения маршрута. В его метод `requestRoutes()`
-      /// мы передаем точки, которые преобразуем в точки для построения маршрута, где в `requestPointType` мы указываем,
-      /// что это точки нашего пути. `DrivingOptions` оставляем по умолчанию. В результате нам приходит список
-      /// с несколькими путями, но из него мы выбираем самый первый и наносим точку на карту.
-      final result = await YandexDriving.requestRoutes(
-        points: [_selectedPoints.first, point]
-            .map(
-              (p) => RequestPoint(
-                point: p,
-                requestPointType: RequestPointType.wayPoint,
-              ),
-            )
-            .toList(),
-        drivingOptions: DrivingOptions(),
-      ).result;
-
-      var index = 0;
-      result.routes?.forEach(
-        (route) {
-          // Добавим на карту кривую с полным путём
-          _mapObjects.add(
-            // PolylineMapObject означает отметку на карте в виде кривой со множеством точек
-            PolylineMapObject(
-              mapId: MapObjectId('polyline$index'),
-              polyline: Polyline(
-                points: result.routes?[index].geometry ?? [],
-              ),
-              strokeColor: _colors[index % 7],
-              strokeWidth: 7.5,
-              outlineColor: Colors.yellow[200]!,
-              outlineWidth: 2.0,
-            ),
-          );
-          index++;
-        },
-      );
-    }
+      ),
+    );
+    // } else {
+    //   // Если хотя бы 2 отметки на карте, то стороим между ними маршрут
+    //
+    //   // Сначала отметим на карте конечную точку
+    //   _mapObjects.add(
+    //     PlacemarkMapObject(
+    //       mapId: _endMapObjectId,
+    //       point: point,
+    //       icon: PlacemarkIcon.single(
+    //         PlacemarkIconStyle(
+    //           image: BitmapDescriptor.fromBytes(_placemarkIcon),
+    //         ),
+    //       ),
+    //     ),
+    //   );
+    //
+    //   // Теперь рассчитаем путь
+    //   /// Объект `YandexDriving` предназначен для построения маршрута. В его метод `requestRoutes()`
+    //   /// мы передаем точки, которые преобразуем в точки для построения маршрута, где в `requestPointType` мы указываем,
+    //   /// что это точки нашего пути. `DrivingOptions` оставляем по умолчанию. В результате нам приходит список
+    //   /// с несколькими путями, но из него мы выбираем самый первый и наносим точку на карту.
+    //   final result = await YandexDriving.requestRoutes(
+    //     points: [_selectedPoints.first, point]
+    //         .map(
+    //           (p) => RequestPoint(
+    //             point: p,
+    //             requestPointType: RequestPointType.wayPoint,
+    //           ),
+    //         )
+    //         .toList(),
+    //     drivingOptions: DrivingOptions(),
+    //   ).result;
+    //
+    //   var index = 0;
+    //   result.routes?.forEach(
+    //     (route) {
+    //       // Добавим на карту кривую с полным путём
+    //       _mapObjects.add(
+    //         // PolylineMapObject означает отметку на карте в виде кривой со множеством точек
+    //         PolylineMapObject(
+    //           mapId: MapObjectId('polyline$index'),
+    //           polyline: Polyline(
+    //             points: result.routes?[index].geometry ?? [],
+    //           ),
+    //           strokeColor: _colors[index % 7],
+    //           strokeWidth: 7.5,
+    //           outlineColor: Colors.yellow[200]!,
+    //           outlineWidth: 2.0,
+    //         ),
+    //       );
+    //       index++;
+    //     },
+    //   );
+    // }
 
     // Обновляем экран
     setState(() {
-      _selectedPoints.add(point);
+      //_selectedPoints.add(point);
+      _selectedPoint = point;
     });
 
     // Двигаем карту к точке
