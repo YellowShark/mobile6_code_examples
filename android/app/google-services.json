@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "308358837318",
+    "firebase_url": "https://ulyana-34cd8-default-rtdb.firebaseio.com",
+    "project_id": "ulyana-34cd8",
+    "storage_bucket": "ulyana-34cd8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:308358837318:android:76a59643eaf2fa29db4647",
+        "android_client_info": {
+          "package_name": "com.example.mobile6_examples"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "308358837318-ttrf9pnt9b3vc65h42cnboqc70jm8846.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcg_KrlG6LTZsOa16mvYr03_qY6mT281Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "308358837318-ttrf9pnt9b3vc65h42cnboqc70jm8846.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

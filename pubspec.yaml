@@ -46,6 +46,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  flutter_stripe: ^4.0.0
+  http: ^0.13.5
+  firebase_core: ^2.6.1
+  firebase_database: ^10.0.13
+  firebase_auth: ^4.2.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
