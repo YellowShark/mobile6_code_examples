@@ -13,13 +13,13 @@ mixin _$RecipesStore on _RecipesStore, Store {
       Atom(name: '_RecipesStore.recipes', context: context);
 
   @override
-  List<dynamic> get recipes {
+  List<Recipe> get recipes {
     _$recipesAtom.reportRead();
     return super.recipes;
   }
 
   @override
-  set recipes(List<dynamic> value) {
+  set recipes(List<Recipe> value) {
     _$recipesAtom.reportWrite(value, super.recipes, () {
       super.recipes = value;
     });

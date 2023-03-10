@@ -48,6 +48,10 @@ dependencies:
   objectbox_flutter_libs: 1.6.0
   flutter_mobx: 2.0.6+4 # MobX под Flutter
   mobx: 2.1.0 # Просто MobX
+  # add injectable to your dependencies
+  injectable: ^1.5.3
+  # add get_it
+  get_it: ^7.2.0
 
 dev_dependencies:
   flutter_test:
@@ -59,7 +63,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  # add build runner if not already added
   build_runner: 2.2.0
+  # add the generator to your dev_dependencies
+  injectable_generator: ^1.5.3
   objectbox_generator: 1.6.0
   mobx_codegen: 2.0.7+3 # Кодогенерация MobX
 
@@ -74,7 +81,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-     - assets/
+    - assets/
 
   # To add assets to your application, add an assets section, like this:
 
