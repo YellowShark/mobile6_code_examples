@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Sizer(
-      builder: (context, orientation, deviceType) => MaterialApp(
+      builder: (_, __, ___) => MaterialApp(
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
@@ -30,70 +30,72 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
+  Widget build(BuildContext context) => LayoutBuilder(
       builder: (_, constraints) => Scaffold(
         appBar: AppBar(),
         body: SizerUtil.orientation == Orientation.landscape
-            ? Row(
-                children: [
-                  Text(
-                    "Text",
-                    style: TextStyle(
-                        fontSize: SizerUtil.orientation == Orientation.portrait
-                            ? 20.sp
-                            : 40.sp),
-                  ),
-                  const Text(
-                    "Text",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 2, color: Colors.green),
-                    ),
-                    width: 100,
-                    height: 40,
-                    child: const FittedBox(
-                      fit: BoxFit.fill,
-                      child: Text(
-                        'This is explanation',
-                        style: TextStyle(fontSize: 40),
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            : Column(
-                children: [
-                  Text(
-                    "Text",
-                    style: TextStyle(
-                        fontSize: SizerUtil.orientation == Orientation.portrait
-                            ? 20.sp
-                            : 40.sp),
-                  ),
-                  const Text(
-                    "Text",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 2, color: Colors.green),
-                    ),
-                    width: 100,
-                    height: 40,
-                    child: const FittedBox(
-                      fit: BoxFit.fill,
-                      child: Text(
-                        'This is explanation',
-                        style: TextStyle(fontSize: 40),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            ? landscapeLayout()
+            : portraitLayout(),
       ),
     );
-  }
+
+  Widget landscapeLayout() =>
+      Row(
+        children: [
+          Text(
+            "Text",
+            style: TextStyle(
+                fontSize: SizerUtil.orientation == Orientation.portrait
+                    ? 20.sp
+                    : 40.sp),
+          ),
+          const Text(
+            "Text",
+            style: TextStyle(fontSize: 20),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(width: 2, color: Colors.green),
+            ),
+            width: 100,
+            height: 40,
+            child: const FittedBox(
+              child: Text(
+                'This is explanation',
+                style: TextStyle(fontSize: 40),
+              ),
+            ),
+          ),
+        ],
+      );
+
+  Widget portraitLayout() =>
+      Column(
+        children: [
+          Text(
+            "Text",
+            style: TextStyle(
+                fontSize: SizerUtil.orientation == Orientation.portrait
+                    ? 20.sp
+                    : 40.sp),
+          ),
+          const Text(
+            "Text",
+            style: TextStyle(fontSize: 20),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(width: 2, color: Colors.green),
+            ),
+            width: 100,
+            height: 40,
+            child: const FittedBox(
+              child: Text(
+                'This is explanation',
+                style: TextStyle(fontSize: 40),
+              ),
+            ),
+          ),
+        ],
+      );
 }
