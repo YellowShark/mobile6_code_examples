@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mobile6_examples/week16/model/note.dart';
-import 'package:mobile6_examples/week16/repository/notes_repository.dart';
+import 'package:mobile6_examples/week16/model/todo.dart';
+import 'package:mobile6_examples/week16/repository/todo_tepository.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -12,49 +12,49 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final _notesRepo = NotesRepository();
-  late var _notes = <Note>[];
-  StreamSubscription? _subscription;
+  final _repository = TodoRepository();
+  var _todoList = <Todo>[];
 
   @override
   void initState() {
     super.initState();
-    _notesRepo.initDB().whenComplete(() => _subscription = _notesRepo.boxStreamNotes.listen((list) {
-      setState(() => _notes = list);
-    }));
+    _init();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notes'),
+        title: const Text('Todo List'),
       ),
       body: ListView.builder(
-        itemCount: _notes.length,
+        itemCount: _todoList.length,
         itemBuilder: (_, i) => ListTile(
           title: Text(
-            _notes[i].name,
+            _todoList[i].name,
           ),
           subtitle: Text(
-            _notes[i].description,
+            _todoList[i].description,
           ),
           trailing: IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () => _showBaseDialog(
-              confirmText: 'Confirm',
-              firstField: _notes[i].name,
-              secondField: _notes[i].description,
-              onPressed: (name, desc) async {
-                await _notesRepo.update(
-                  _notes[i].id,
-                  Note(
-                    name: name,
-                    description: desc,
-                  ),
-                );
-              },
-            ),
+            onPressed: () {
+              final item = _todoList[i];
+              _showBaseDialog(
+                confirmText: 'Confirm',
+                firstField: item.name,
+                secondField: item.description,
+                onPressed: (name, desc) async {
+                  await _repository.update(
+                    item.id,
+                    Todo(
+                      name: name,
+                      description: desc,
+                    ),
+                  );
+                },
+              );
+            },
           ),
         ),
       ),
@@ -62,8 +62,8 @@ class _MainPageState extends State<MainPage> {
         onPressed: () => _showBaseDialog(
           confirmText: 'Add',
           onPressed: (name, desc) async {
-            await _notesRepo.addNote(
-              Note(
+            await _repository.create(
+              Todo(
                 name: name,
                 description: desc,
               ),
@@ -77,7 +77,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
-    _subscription?.cancel();
     super.dispose();
   }
 
@@ -95,7 +94,7 @@ class _MainPageState extends State<MainPage> {
           final nameController = TextEditingController(text: firstField);
           final descController = TextEditingController(text: secondField);
           return AlertDialog(
-            title: const Text('New note'),
+            title: const Text('New ToDo'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -121,4 +120,12 @@ class _MainPageState extends State<MainPage> {
           );
         },
       );
+
+  Future _init() async {
+    await _repository.initDB();
+    _repository.todoListStream().listen((todoList) {
+      _todoList = todoList;
+      setState(() {});
+    });
+  }
 }

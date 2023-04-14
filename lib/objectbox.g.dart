@@ -14,6 +14,7 @@ import 'package:objectbox/objectbox.dart';
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'week16/model/note.dart';
+import 'week16/model/todo.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
@@ -36,6 +37,30 @@ final _entities = <ModelEntity>[
             flags: 0),
         ModelProperty(
             id: const IdUid(3, 339451552524319145),
+            name: 'description',
+            type: 9,
+            flags: 0)
+      ],
+      relations: <ModelRelation>[],
+      backlinks: <ModelBacklink>[]),
+  ModelEntity(
+      id: const IdUid(2, 1462209652215009437),
+      name: 'Todo',
+      lastPropertyId: const IdUid(3, 4458855095469152644),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 469195652911813401),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(2, 3078781106247767271),
+            name: 'name',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(3, 4458855095469152644),
             name: 'description',
             type: 9,
             flags: 0)
@@ -64,7 +89,7 @@ Future<Store> openStore(
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(1, 69397955355701440),
+      lastEntityId: const IdUid(2, 1462209652215009437),
       lastIndexId: const IdUid(0, 0),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
@@ -107,6 +132,37 @@ ModelDefinition getObjectBoxModel() {
                   .vTableGet(buffer, rootOffset, 8, ''));
 
           return object;
+        }),
+    Todo: EntityDefinition<Todo>(
+        model: _entities[1],
+        toOneRelations: (Todo object) => [],
+        toManyRelations: (Todo object) => {},
+        getId: (Todo object) => object.id,
+        setId: (Todo object, int id) {
+          object.id = id;
+        },
+        objectToFB: (Todo object, fb.Builder fbb) {
+          final nameOffset = fbb.writeString(object.name);
+          final descriptionOffset = fbb.writeString(object.description);
+          fbb.startTable(4);
+          fbb.addInt64(0, object.id);
+          fbb.addOffset(1, nameOffset);
+          fbb.addOffset(2, descriptionOffset);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+
+          final object = Todo(
+              id: const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0),
+              name: const fb.StringReader(asciiOptimization: true)
+                  .vTableGet(buffer, rootOffset, 6, ''),
+              description: const fb.StringReader(asciiOptimization: true)
+                  .vTableGet(buffer, rootOffset, 8, ''));
+
+          return object;
         })
   };
 
@@ -124,4 +180,17 @@ class Note_ {
   /// see [Note.description]
   static final description =
       QueryStringProperty<Note>(_entities[0].properties[2]);
+}
+
+/// [Todo] entity fields to define ObjectBox queries.
+class Todo_ {
+  /// see [Todo.id]
+  static final id = QueryIntegerProperty<Todo>(_entities[1].properties[0]);
+
+  /// see [Todo.name]
+  static final name = QueryStringProperty<Todo>(_entities[1].properties[1]);
+
+  /// see [Todo.description]
+  static final description =
+      QueryStringProperty<Todo>(_entities[1].properties[2]);
 }

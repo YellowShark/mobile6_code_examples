@@ -26,9 +26,33 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "2:1462209652215009437",
+      "lastPropertyId": "3:4458855095469152644",
+      "name": "Todo",
+      "properties": [
+        {
+          "id": "1:469195652911813401",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3078781106247767271",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:4458855095469152644",
+          "name": "description",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "1:69397955355701440",
+  "lastEntityId": "2:1462209652215009437",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
