@@ -75,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  void _initData() {
+  void _initData() async {
     FirebaseHelper.getTasks().listen((event) {
       final map = event.snapshot.value as Map<dynamic, dynamic>?;
       if (map != null) {
@@ -84,6 +84,14 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     });
+
+    // final snapshot = await FirebaseHelper.getTasksFuture();
+    // final map = snapshot?.value as Map<dynamic, dynamic>?;
+    // if (map != null) {
+    //   setState(() {
+    //     tasks = map.values.map((e) => e as String).toList();
+    //   });
+    // }
 
     FirebaseHelper.getMessage().listen((event) {
       final message = event.snapshot.value as String?;
