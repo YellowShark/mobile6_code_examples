@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mobile6_examples/week16/model/note.dart';
 import 'package:mobile6_examples/week16/repository/notes_repository.dart';
+import 'package:mobile6_examples/week16/utils/dialog_utils.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -19,9 +20,10 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    _notesRepo.initDB().whenComplete(() => _subscription = _notesRepo.boxStreamNotes.listen((list) {
-      setState(() => _notes = list);
-    }));
+    _notesRepo.initDB().whenComplete(
+        () => _subscription = _notesRepo.boxStreamNotes.listen((list) {
+              setState(() => _notes = list);
+            }));
   }
 
   @override
@@ -41,7 +43,8 @@ class _MainPageState extends State<MainPage> {
           ),
           trailing: IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () => _showBaseDialog(
+            onPressed: () => showBaseDialog(
+              context: context,
               confirmText: 'Confirm',
               firstField: _notes[i].name,
               secondField: _notes[i].description,
@@ -59,7 +62,8 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showBaseDialog(
+        onPressed: () => showBaseDialog(
+          context: context,
           confirmText: 'Add',
           onPressed: (name, desc) async {
             await _notesRepo.addNote(
@@ -80,45 +84,4 @@ class _MainPageState extends State<MainPage> {
     _subscription?.cancel();
     super.dispose();
   }
-
-  Future _showBaseDialog({
-    required String confirmText,
-    required Future<void> Function(String first, String second) onPressed,
-    String firstField = '',
-    String secondField = '',
-  }) =>
-      showGeneralDialog(
-        context: context,
-        barrierDismissible: true,
-        barrierLabel: '',
-        pageBuilder: (_, __, ___) {
-          final nameController = TextEditingController(text: firstField);
-          final descController = TextEditingController(text: secondField);
-          return AlertDialog(
-            title: const Text('New note'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(hintText: 'Name'),
-                ),
-                TextField(
-                  controller: descController,
-                  decoration: const InputDecoration(hintText: 'Description'),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  onPressed(nameController.text, descController.text);
-                  Navigator.pop(context);
-                },
-                child: Text(confirmText),
-              )
-            ],
-          );
-        },
-      );
 }

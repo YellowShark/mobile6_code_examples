@@ -7,5 +7,5 @@ class DefaultRecipeInteractor implements RecipeInteractor {
   final RecipeService _service = HttpRecipeService();
 
   @override
-  Future<List<Recipe>> fetchRecipes() => _service.fetchRecipes();
+  Future<List<Recipe>> getRecipes() => _service.fetchRecipes();
 }

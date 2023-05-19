@@ -14,7 +14,7 @@ abstract class _RecipesStore with Store {
 
   @action
   Future<void> fetchRecipes() async {
-    recipes = await _interactor.fetchRecipes();
+    recipes = await _interactor.getRecipes();
   }
 }
 
