@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobile6_examples/week16/di/config.dart';
 import 'package:mobile6_examples/week16/model/note.dart';
-import 'package:mobile6_examples/week16/repository/notes_repository.dart';
+import 'package:mobile6_examples/week16/ui/main_store.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -12,16 +14,12 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final _notesRepo = NotesRepository();
-  late var _notes = <Note>[];
-  StreamSubscription? _subscription;
+  final MainStore _viewModel = getIt<MainStore>();
 
   @override
   void initState() {
     super.initState();
-    _notesRepo.initDB().whenComplete(() => _subscription = _notesRepo.boxStreamNotes.listen((list) {
-      setState(() => _notes = list);
-    }));
+    _viewModel.getNotes();
   }
 
   @override
@@ -30,39 +28,44 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(
         title: const Text('Notes'),
       ),
-      body: ListView.builder(
-        itemCount: _notes.length,
-        itemBuilder: (_, i) => ListTile(
-          title: Text(
-            _notes[i].name,
-          ),
-          subtitle: Text(
-            _notes[i].description,
-          ),
-          trailing: IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () => _showBaseDialog(
-              confirmText: 'Confirm',
-              firstField: _notes[i].name,
-              secondField: _notes[i].description,
-              onPressed: (name, desc) async {
-                await _notesRepo.update(
-                  _notes[i].id,
-                  Note(
-                    name: name,
-                    description: desc,
-                  ),
-                );
-              },
+      body: Observer(
+        builder: (_) {
+          final notes = _viewModel.notes;
+          return ListView.builder(
+            itemCount: notes.length,
+            itemBuilder: (_, i) => ListTile(
+              title: Text(
+                notes[i].name,
+              ),
+              subtitle: Text(
+                notes[i].description,
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => _showBaseDialog(
+                  confirmText: 'Confirm',
+                  firstField: notes[i].name,
+                  secondField: notes[i].description,
+                  onPressed: (name, desc) async {
+                    await _viewModel.updateNote(
+                      notes[i].id,
+                      Note(
+                        name: name,
+                        description: desc,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showBaseDialog(
           confirmText: 'Add',
           onPressed: (name, desc) async {
-            await _notesRepo.addNote(
+            await _viewModel.addNote(
               Note(
                 name: name,
                 description: desc,
@@ -77,7 +80,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
-    _subscription?.cancel();
+    // _subscription?.cancel();
     super.dispose();
   }
 

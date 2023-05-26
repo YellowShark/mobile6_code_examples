@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile6_examples/week16/di/config.dart';
 import 'package:mobile6_examples/week16/ui/main_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await configureDependencies();
   runApp(const MyApp());
 }
 

@@ -9,15 +9,14 @@ import 'package:get_it/get_it.dart' as _i1;
 import 'package:injectable/injectable.dart' as _i2;
 import 'package:objectbox/objectbox.dart' as _i6;
 
-import '../../week16/di/database_module.dart' as _i11;
-import '../../week16/repository/notes_repository.dart' as _i3;
-import '../../week16/ui/main_store.dart' as _i7;
-import '../data/interactor/default_recipe_interactor.dart' as _i9;
-import '../data/service/http_recipe_service.dart' as _i5;
-import '../domain/interactor/recipe_interactor.dart' as _i8;
-import '../domain/service/recipe_service.dart' as _i4;
-import '../ui/recipes/recipes_store.dart'
-    as _i10; // ignore_for_file: unnecessary_lambdas
+import '../../week22/data/interactor/default_recipe_interactor.dart' as _i9;
+import '../../week22/data/service/http_recipe_service.dart' as _i5;
+import '../../week22/domain/interactor/recipe_interactor.dart' as _i8;
+import '../../week22/domain/service/recipe_service.dart' as _i4;
+import '../../week22/ui/recipes/recipes_store.dart' as _i10;
+import '../repository/notes_repository.dart' as _i3;
+import '../ui/main_store.dart' as _i7;
+import 'database_module.dart' as _i11; // ignore_for_file: unnecessary_lambdas
 
 // ignore_for_file: lines_longer_than_80_chars
 /// initializes the registration of provided dependencies inside of [GetIt]
