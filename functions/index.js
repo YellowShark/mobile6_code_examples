@@ -10,7 +10,7 @@ exports.stripePaymentIntentRequest = functions.https.onRequest(async (req, res) 
             email: req.body.email,
             limit: 1
         });
-
+                
         //Checks the if the customer exists, if not creates a new customer
         if (customerList.data.length !== 0) {
             customerId = customerList.data[0].id;
@@ -22,7 +22,7 @@ exports.stripePaymentIntentRequest = functions.https.onRequest(async (req, res) 
             customerId = customer.data.id;
         }
 
-        //Creates a temporary secret key linked with the customer
+        //Creates a temporary secret key linked with the customer 
         const ephemeralKey = await stripe.ephemeralKeys.create(
             { customer: customerId },
             { apiVersion: '2020-08-27' }
@@ -41,7 +41,7 @@ exports.stripePaymentIntentRequest = functions.https.onRequest(async (req, res) 
             customer: customerId,
             success: true,
         })
-
+        
     } catch (error) {
         res.status(404).send({ success: false, error: error.message })
     }

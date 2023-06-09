@@ -7,7 +7,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'firebase_helper.dart';
 
 const url =
-    "https://us-central1-ulyana-34cd8.cloudfunctions.net/stripePaymentIntentRequest";
+    "https://us-central1-stripe-85862.cloudfunctions.net/stripePaymentIntentRequest";
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage({Key? key}) : super(key: key);
@@ -42,7 +42,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
   Widget get fullScreen => Column(
         children: [
-          TextField(),
+          const TextField(),
           ElevatedButton(
             style: ButtonStyle(
               foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
